@@ -1,0 +1,11 @@
+.centered-button {
+    display: block;
+    margin: 0 auto;
+    border-radius: 40%;
+    background-color: blue;
+    color: white;
+    border: 6;
+    padding: 10px 20px;
+    font-size: 16px;
+    
+  }

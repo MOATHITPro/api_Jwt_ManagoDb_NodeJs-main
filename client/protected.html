@@ -1,0 +1,186 @@
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Protected Page</title>
+    <!-- تضمين ملفات Bootstrap -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <!-- تضمين مكتبة Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</head>
+<div class="login-header box-shadow">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <div class="brand-logo">
+            <a href="login.html">
+                <img src="vendors/images/deskapp-logo.svg" alt="">
+            </a>
+        </div>
+        <div class="login-menu">
+            <ul>
+                <li><a href="index.html">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<body>
+    <div class="container mt-5">
+       
+         
+        <form id="dataForm">
+            <div class="mb-3">
+                <label for="name" class="form-label">الاسم:</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">السعر:</label>
+                <input type="number" id="price" name="price" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> إضافة المنتج</button>
+        </form>
+
+        <table id="productsTable" class="table mt-4">
+            <thead>
+                <tr>
+                    <th>الاسم</th>
+                    <th>السعر</th>
+                    <th>الإجراء</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- سيتم إضافة المنتجات هنا -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+
+// الحصول على الرمز المميز (Token) من التخزين المحلي للمتصفح
+      const token = localStorage.getItem('token');
+
+// دالة لعرض المنتجات داخل جدول على الصفحة
+function renderProducts(products) {
+    // العثور على جسم الجدول في الصفحة
+    const tableBody = document.querySelector('#productsTable tbody');
+    // تفريغ محتوى جسم الجدول لإعادة البناء
+    tableBody.innerHTML = '';
+
+    // تكرار كل منتج وإنشاء صف جديد له في الجدول
+    products.forEach(product => {
+        const row = document.createElement('tr');
+
+        // إنشاء خلية لاسم المنتج وإضافتها للصف
+        const nameCell = document.createElement('td');
+        nameCell.textContent = product.name;
+        row.appendChild(nameCell);
+
+        // إنشاء خلية لسعر المنتج وإضافتها للصف
+        const priceCell = document.createElement('td');
+        priceCell.textContent = product.price;
+        row.appendChild(priceCell);
+
+        // إنشاء خلية للأزرار وإضافتها للصف
+        const actionCell = document.createElement('td');
+
+        // إنشاء زر الحذف وإضافة حدث له لحذف المنتج
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = '<i class="fas fa-trash"></i> حذف';
+        deleteButton.classList.add('btn', 'btn-danger', 'me-2');
+        deleteButton.addEventListener('click', () => deleteProduct(product._id));
+        actionCell.appendChild(deleteButton);
+
+        // إنشاء زر التحديث وإضافة حدث له لتحديث المنتج
+        const updateButton = document.createElement('button');
+        updateButton.innerHTML = '<i class="fas fa-pencil-alt"></i> تحديث';
+        updateButton.classList.add('btn', 'btn-primary');
+
+        // إضافة استماع لحدث النقر لزر التحديث مع إنشاء URL يحتوي على بيانات المنتج
+        updateButton.addEventListener('click', () => {
+            const url = `update-page.html?token=${token}&productId=${product._id}&productName=${product.name}&productPrice=${product.price}`;
+            window.location.href = url; // تغيير الصفحة إلى صفحة التحديث مع المعلومات
+        });
+
+        actionCell.appendChild(updateButton);
+        row.appendChild(actionCell);
+        tableBody.appendChild(row);
+    });
+}
+
+// دالة لجلب المنتجات من الخادم
+function fetchProducts() {
+    fetch('http://localhost:3000/api/products', {
+        headers: {
+            'Authorization': `Bearer ${token}` // إرسال الرمز المميز في رأس الطلب
+        }
+    })
+    .then(response => response.json()) // تحويل الاستجابة إلى JSON
+    .then(data => {
+        console.log(data); // طباعة البيانات للتصحيح
+        renderProducts(data); // عرض المنتجات على الصفحة
+    })
+    .catch(error => console.error('خطأ:', error)); // التعامل مع الأخطاء المحتملة
+}
+
+// دالة لحذف منتج معين بناءً على معرفه (productId)
+function deleteProduct(productId) {
+    fetch(`http://localhost:3000/api/products/${productId}`, {
+        method: 'DELETE', // استخدام طريقة DELETE للطلب
+        headers: {
+            'Authorization': `Bearer ${token}` // إضافة رأس الطلب للتحقق من صلاحية المستخدم
+        }
+    })
+    .then(response => response.json()) // تحويل الاستجابة إلى JSON
+    .then(data => {
+        console.log(data); // طباعة البيانات للتصحيح
+        fetchProducts(); // إعادة جلب قائمة المنتجات بعد الحذف لتحديث العرض
+    })
+    .catch(error => console.error('خطأ:', error)); // التعامل مع الأخطاء المحتملة
+}
+
+// دالة لإضافة منتج جديد
+function addProduct(event) {
+    event.preventDefault(); // منع السلوك الافتراضي للنموذج (إعادة تحميل الصفحة)
+
+    // الحصول على قيم الاسم والسعر من النموذج
+    const name = document.getElementById('name').value;
+    const price = document.getElementById('price').value;
+
+    // تجهيز البيانات للإرسال
+    const formData = { name, price };
+
+    fetch('http://localhost:3000/api/products', {
+        method: 'POST', // استخدام طريقة POST لإنشاء منتج جديد
+        headers: {
+            'Authorization': `Bearer ${token}`, // إرفاق الرمز المميز للتحقق من صلاحية المستخدم
+            'Content-Type': 'application/json' // تحديد نوع المحتوى المرسل
+        },
+        body: JSON.stringify(formData) // تحويل البيانات إلى JSON وإرسالها
+    })
+    .then(response => response.json()) // تحويل الاستجابة إلى JSON
+    .then(data => {
+        console.log(data); // طباعة البيانات للتصحيح
+        fetchProducts(); // إعادة جلب قائمة المنتجات لتحديث العرض
+        // إعادة تعيين قيم النموذج
+        document.getElementById('name').value = '';
+        document.getElementById('price').value = '';
+    })
+    .catch(error => console.error('خطأ:', error)); // التعامل مع الأخطاء المحتملة
+}
+
+      // إضافة استماع لحدث الإرسال على النموذج وربطه بدالة addProduct
+        document.getElementById('dataForm').addEventListener('submit', addProduct);
+
+      // جلب وعرض المنتجات عند تحميل الصفحة
+       fetchProducts();
+
+
+    </script>
+        <script src="vendors/scripts/layout-settings.js"></script>
+
+</body>
+
+</html>

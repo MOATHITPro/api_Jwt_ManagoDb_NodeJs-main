@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Product</title>
+    <link rel="stylesheet" type="text/css" href="vendors/styles/core.css" />
+    <link rel="stylesheet" type="text/css" href="vendors/styles/style.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+    <div class="login-header box-shadow">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <div class="brand-logo">
+                <a href="registration.html">
+                    <img src="vendors/images/deskapp-logo.svg" alt="" />
+                </a>
+            </div>
+            <div class="login-menu">
+                <ul>
+                    <li><a href="protected.html">Back</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="register-page-wrap d-flex align-items-center flex-wrap justify-content-center">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-8md-6 col-lg-7">
+                    <img src="vendors/images/prodect.png" alt="" />
+                </div>
+                <div class="col-md-6 col-lg-5">
+
+
+
+                  
+						<div class="login-box bg-white box-shadow border-radius-10">
+							<div class="login-title">
+								<h2 class="text-center text-primary">update Product Form</h2>
+							</div>
+							<form id="updateProductForm">
+
+                                <div class="form-group row">
+                                    <label for="newName" class="col-sm-4 col-form-label">newName*</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" id="newName" name="newName" required class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label  for="newPrice" class="col-sm-4 col-form-label">new Price*</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" id="newPrice" name="newPrice" required class="form-control" />
+                                    </div>
+                                </div>
+								<div class="row">
+									<div class="col-sm-12">
+										<div class="input-group mb-0">
+											<!--
+											use code for form submit
+											<input class="btn btn-primary btn-lg btn-block" type="submit" value="Sign In">
+										-->
+										</div>
+										
+								     </div>
+								</div>
+                                
+								<button type="submit" class="btn btn-primary btn-lg btn-block">Update Product</button>
+
+							</form>
+						</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // استخراج البيانات من عنوان URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const productId = urlParams.get('productId');
+        const productName = urlParams.get('productName');
+        const productPrice = urlParams.get('productPrice');
+        // ملء حقول النموذج بالبيانات المستخرجة
+        document.getElementById('newName').value = productName;
+        document.getElementById('newPrice').value = productPrice;
+        document.getElementById('updateProductForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // منع الإرسال الافتراضي للنموذج
+            const newName = document.getElementById('newName').value;
+            const newPrice = document.getElementById('newPrice').value;
+            const formData = { name: newName, price: newPrice };
+            // إرسال طلب تحديث المنتج باستخدام البيانات المدخلة
+            fetch(`http://localhost:3000/api/products/${productId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert('Product updated successfully!');
+                // إعادة توجيه المستخدم بعد التحديث إلى صفحة أخرى أو إلى الصفحة الرئيسية
+                window.location.href = 'protected.html';
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+    <script src="vendors/scripts/core.js"></script>
+    <script src="vendors/scripts/script.min.js"></script>
+    <script src="vendors/scripts/process.js"></script>
+    <script src="vendors/scripts/layout-settings.js"></script>
+    <script src="src/plugins/jquery-steps/jquery.steps.js"></script>
+    <script src="vendors/scripts/steps-setting.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
